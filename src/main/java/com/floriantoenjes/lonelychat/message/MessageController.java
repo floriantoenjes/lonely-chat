@@ -36,14 +36,11 @@ public class MessageController {
     }
 
     private Mono<User> findOrCreateUser(Mono<String> username) {
-        return username.flatMap(name -> userRepository.findByUsername(name)).flatMap(user -> {
-            if (user == null) {
-                User newUser = new User("test");
-                return userRepository.save(newUser);
-            } else {
-                return Mono.just(user);
-            }
-        });
+        return username.flatMap(name -> userRepository.findByUsername(name)).switchIfEmpty(createUser(username));
+    }
+
+    private Mono<User> createUser(Mono<String> username) {
+        return username.flatMap(name -> userRepository.save(new User(name)));
     }
 
 }
