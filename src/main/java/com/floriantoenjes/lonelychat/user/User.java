@@ -13,22 +13,22 @@ import java.util.List;
 @Document
 @NoArgsConstructor
 public class User {
-    String id;
+    private String id;
 
     public User(String username) {
         this.username = username;
     }
 
     @Indexed(unique = true)
-    String username;
+    private String username;
 
     @DBRef
-    List<Message> received;
+    private List<Message> received;
 
     @DBRef
-    List<Message> sent;
+    private List<Message> sent;
 
-    List<User> allowedContacts;
+    private List<User> allowedContacts;
 
-    List<User> blockedContacts;
+    private List<User> blockedContacts;
 }

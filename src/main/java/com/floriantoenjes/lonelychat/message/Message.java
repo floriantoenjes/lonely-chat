@@ -10,13 +10,16 @@ import java.time.LocalDateTime;
 @Data
 @Document
 public class Message {
-    String id;
 
-    LocalDateTime sentAt;
+    private String id;
+
+    private LocalDateTime sentAt;
+
+    private String message;
 
     @DBRef
-    User sender;
+    private User sender;
 
     @DBRef
-    User receiver;
+    private User receiver;
 }
