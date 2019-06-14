@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 import static com.floriantoenjes.lonelychat.utils.AuthUtils.getUsernameFromAuth;
 
 @RestController
@@ -42,6 +44,7 @@ public class MessageController {
                 .flatMap((senderAndReceiver) -> {
                     message.setSender(senderAndReceiver.getT1());
                     message.setReceiver(senderAndReceiver.getT2());
+                    message.setSentAt(LocalDateTime.now());
 
                     return messageRepository.save(message);
                 });
