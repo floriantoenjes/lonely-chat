@@ -2,8 +2,7 @@ package com.floriantoenjes.lonelychat.message;
 
 import com.floriantoenjes.lonelychat.user.User;
 import com.floriantoenjes.lonelychat.user.UserRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,6 +32,19 @@ public class MessageController {
         Mono<String> username = getUsernameFromAuth();
         return findOrCreateUser(username)
                 .flatMapMany(user -> messageRepository.findAllBySenderId(user.getId()));
+    }
+
+    @PostMapping("/send/{receiver}")
+    public Mono<Message> sendMessage(@PathVariable String receiver, @RequestBody Message message) {
+        Mono<String> username = getUsernameFromAuth();
+        return findOrCreateUser(username)
+                .zipWith(userRepository.findByUsername(receiver))
+                .flatMap((senderAndReceiver) -> {
+                    message.setSender(senderAndReceiver.getT1());
+                    message.setReceiver(senderAndReceiver.getT2());
+
+                    return messageRepository.save(message);
+                });
     }
 
     private Mono<User> findOrCreateUser(Mono<String> username) {

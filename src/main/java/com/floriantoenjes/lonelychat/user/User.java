@@ -19,7 +19,7 @@ public class User {
         this.username = username;
     }
 
-    @Indexed(unique = true)
+//    @Indexed(unique = true)
     private String username;
 
     @DBRef
