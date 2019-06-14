@@ -47,6 +47,17 @@ public class MessageController {
                 });
     }
 
+    @GetMapping(value = "/stream-sse", produces = "text/event-stream")
+    public Flux<Message> streamEvents() {
+
+        Mono<String> username = getUsernameFromAuth();
+        return findOrCreateUser(username)
+                .flatMapMany(user -> {
+                    System.out.println("TEST");
+                    return messageRepository.findAllByReceiverId(user.getId());
+                });
+    }
+
     private Mono<User> findOrCreateUser(Mono<String> username) {
         return username.flatMap(name -> userRepository.findByUsername(name)).switchIfEmpty(createUser(username));
     }
