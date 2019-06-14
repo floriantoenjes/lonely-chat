@@ -52,10 +52,7 @@ public class MessageController {
 
         Mono<String> username = getUsernameFromAuth();
         return findOrCreateUser(username)
-                .flatMapMany(user -> {
-                    System.out.println("TEST");
-                    return messageRepository.findAllByReceiverId(user.getId());
-                });
+                .flatMapMany(user -> messageRepository.findAllByReceiverId(user.getId()));
     }
 
     private Mono<User> findOrCreateUser(Mono<String> username) {
