@@ -6,10 +6,11 @@ import reactor.core.publisher.Flux;
 
 public interface MessageRepository extends ReactiveMongoRepository<Message, String> {
 
-    @Tailable
     Flux<Message> findAllByReceiverId(String receiverId);
 
-    Flux<Message> findAllBySenderId(String senderId);
+    @Tailable
+    Flux<Message> findAllBySenderIdOrReceiverId(String senderId, String receiverId);
 
+    Flux<Message> findAllBySenderId(String senderId);
 
 }

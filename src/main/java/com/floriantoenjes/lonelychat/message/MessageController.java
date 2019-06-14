@@ -52,10 +52,9 @@ public class MessageController {
 
     @GetMapping(value = "/stream-sse", produces = "text/event-stream")
     public Flux<Message> streamEvents() {
-
         Mono<String> username = getUsernameFromAuth();
         return findOrCreateUser(username)
-                .flatMapMany(user -> messageRepository.findAllByReceiverId(user.getId()));
+                .flatMapMany(user -> messageRepository.findAllBySenderIdOrReceiverId(user.getId(), user.getId()));
     }
 
     private Mono<User> findOrCreateUser(Mono<String> username) {
