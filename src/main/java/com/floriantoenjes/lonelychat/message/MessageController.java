@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 import static com.floriantoenjes.lonelychat.utils.AuthUtils.getUsernameFromAuth;
 
@@ -42,6 +43,18 @@ public class MessageController {
                 .flatMapMany(user -> messageRepository.findAllBySenderId(user.getId()));
     }
 
+    @GetMapping("/messages/{contactName}")
+    public Flux<Message> getMessagesFromContact(@PathVariable String targetName) {
+        Mono<String> owner = getUsernameFromAuth();
+        return findOrCreateUser(owner)
+                .zipWith(findOrCreateUser(Mono.just(targetName)))
+                .flatMap(ownerAndTarget ->
+                        contactRepository.findByOwnerIdAndTargetId(ownerAndTarget.getT1().getId(),
+                                ownerAndTarget.getT2().getId()))
+                .map(contact -> contact.getMessages().stream().map(Message::getId).collect(Collectors.toList()))
+                .flatMapMany(msgIds -> messageRepository.findAllByIdIn(msgIds));
+    }
+
     @PostMapping("/send/{receiverName}")
     public Mono<Message> sendMessage(@PathVariable String receiverName, @RequestBody Message message) {
         Mono<String> senderName = getUsernameFromAuth();
@@ -56,7 +69,7 @@ public class MessageController {
                     message.setSentAt(LocalDateTime.now());
 
                     return messageRepository.save(message)
-                            .zipWith(findOrCreateContact(sender))
+                            .zipWith(findOrCreateContact(sender, receiver))
                             .doOnNext(messageAndSenderContact -> {
                                 Contact senderContact = messageAndSenderContact.getT2();
                                 senderContact.addMessage(messageAndSenderContact.getT1());
@@ -64,37 +77,14 @@ public class MessageController {
                             })
                             .flatMap(messageAndSenderContact -> {
                                 Message msg = messageAndSenderContact.getT1();
-                                return Mono.just(msg).zipWith(findOrCreateContact(receiver));
+                                return Mono.just(msg).zipWith(findOrCreateContact(receiver, sender));
                             })
                             .doOnNext(messageAndReceiverContact -> {
                                 Contact receiverContact = messageAndReceiverContact.getT2();
                                 receiverContact.addMessage(messageAndReceiverContact.getT1());
                                 contactRepository.save(receiverContact).subscribe();
                             }).map(Tuple2::getT1);
-
-//                    return findOrCreateContact(sender)
-//                            .doOnNext(senderContact -> {
-//                                senderContact.addMessage(message);
-//                                contactRepository.save(senderContact);
-//                            })
-//                            .flatMap(senderContact -> findOrCreateContact(receiver))
-//                            .doOnNext(receiverContact -> {
-//                                receiverContact.addMessage(message);
-//                                contactRepository.save(receiverContact);
-//                            })
-//                            .flatMap(receiverContact -> messageRepository.save(message));
                 });
-    }
-
-    private Mono<Contact> findOrCreateContact(User user) {
-        return contactRepository.findByOwnerId(user.getId()).switchIfEmpty(createContact(user));
-    }
-
-    private Mono<Contact> createContact(User user) {
-        Contact contact = new Contact();
-        contact.setOwner(user);
-
-        return contactRepository.save(contact);
     }
 
     @GetMapping(value = "/stream-sse", produces = "text/event-stream")
@@ -103,6 +93,19 @@ public class MessageController {
         return findOrCreateUser(username)
                 .flatMapMany(user -> messageRepository
                         .findAllBySenderIdOrReceiverIdAndSentAtAfter(user.getId(), user.getId(), LocalDateTime.now()));
+    }
+
+    private Mono<Contact> findOrCreateContact(User owner, User target) {
+        return contactRepository.findByOwnerIdAndTargetId(owner.getId(), target.getId())
+                .switchIfEmpty(createContact(owner, target));
+    }
+
+    private Mono<Contact> createContact(User owner, User target) {
+        Contact contact = new Contact();
+        contact.setOwner(owner);
+        contact.setTarget(target);
+
+        return contactRepository.save(contact);
     }
 
     private Mono<User> findOrCreateUser(Mono<String> username) {

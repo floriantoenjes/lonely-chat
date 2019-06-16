@@ -19,6 +19,9 @@ public class Contact {
     private User owner;
 
     @DBRef
+    private User target;
+
+    @DBRef
     private List<Message> messages;
 
     private Message lastMessage;

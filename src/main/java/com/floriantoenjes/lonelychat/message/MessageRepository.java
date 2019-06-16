@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.Tailable;
 import reactor.core.publisher.Flux;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 
 public interface MessageRepository extends ReactiveMongoRepository<Message, String> {
 
@@ -14,5 +15,7 @@ public interface MessageRepository extends ReactiveMongoRepository<Message, Stri
     Flux<Message> findAllBySenderIdOrReceiverIdAndSentAtAfter(String senderId, String receiverId, LocalDateTime sentAt);
 
     Flux<Message> findAllBySenderId(String senderId);
+
+    Flux<Message> findAllByIdIn(Collection<String> ids);
 
 }

@@ -5,6 +5,6 @@ import reactor.core.publisher.Mono;
 
 public interface ContactRepository extends ReactiveMongoRepository<Contact, String> {
 
-    Mono<Contact> findByOwnerId(String ownerId);
+    Mono<Contact> findByOwnerIdAndTargetId(String ownerId, String targetId);
 
 }
