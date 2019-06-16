@@ -60,7 +60,7 @@ public class MessageController {
                             .doOnNext(messageAndSenderContact -> {
                                 Contact senderContact = messageAndSenderContact.getT2();
                                 senderContact.addMessage(messageAndSenderContact.getT1());
-                                contactRepository.save(senderContact);
+                                contactRepository.save(senderContact).subscribe();
                             })
                             .flatMap(messageAndSenderContact -> {
                                 Message msg = messageAndSenderContact.getT1();
@@ -69,7 +69,7 @@ public class MessageController {
                             .doOnNext(messageAndReceiverContact -> {
                                 Contact receiverContact = messageAndReceiverContact.getT2();
                                 receiverContact.addMessage(messageAndReceiverContact.getT1());
-                                contactRepository.save(receiverContact);
+                                contactRepository.save(receiverContact).subscribe();
                             }).map(Tuple2::getT1);
 
 //                    return findOrCreateContact(sender)
