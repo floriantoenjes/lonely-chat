@@ -87,7 +87,7 @@ public class MessageController {
                 });
     }
 
-    @GetMapping(value = "/stream-sse", produces = "text/event-stream")
+    @GetMapping(value = "/receiving-sse", produces = "text/event-stream")
     public Flux<Message> streamEvents() {
         Mono<String> username = getUsernameFromAuth();
         return findOrCreateUser(username)
