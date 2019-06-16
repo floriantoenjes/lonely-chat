@@ -43,7 +43,7 @@ public class MessageController {
                 .flatMapMany(user -> messageRepository.findAllBySenderId(user.getId()));
     }
 
-    @GetMapping("/messages/{contactName}")
+    @GetMapping("/messages/{targetName}")
     public Flux<Message> getMessagesFromContact(@PathVariable String targetName) {
         Mono<String> owner = getUsernameFromAuth();
         return findOrCreateUser(owner)
