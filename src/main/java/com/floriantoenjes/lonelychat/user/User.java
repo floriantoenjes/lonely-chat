@@ -1,9 +1,9 @@
 package com.floriantoenjes.lonelychat.user;
 
+import com.floriantoenjes.lonelychat.contact.Contact;
 import com.floriantoenjes.lonelychat.message.Message;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,7 +19,6 @@ public class User {
         this.username = username;
     }
 
-//    @Indexed(unique = true)
     private String username;
 
     @DBRef
@@ -28,7 +27,9 @@ public class User {
     @DBRef
     private List<Message> sent;
 
-    private List<User> allowedContacts;
+    @DBRef
+    private List<Contact> contacts;
 
-    private List<User> blockedContacts;
+    @DBRef
+    private List<Contact> blockedContacts;
 }
