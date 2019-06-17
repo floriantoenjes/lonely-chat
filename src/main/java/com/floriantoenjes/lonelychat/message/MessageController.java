@@ -9,6 +9,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
@@ -90,9 +91,18 @@ public class MessageController {
     @GetMapping(value = "/receiving-sse", produces = "text/event-stream")
     public Flux<Message> streamEvents() {
         Mono<String> username = getUsernameFromAuth();
-        return findOrCreateUser(username)
+
+        Flux<Message> message = findOrCreateUser(username)
                 .flatMapMany(user -> messageRepository
                         .findAllBySenderIdOrReceiverIdAndSentAtAfter(user.getId(), user.getId(), LocalDateTime.now()));
+
+        Flux<Message> heartBeat = Flux.interval(Duration.ofSeconds(30)).map(sequence -> {
+            Message heartBeatMessage = new Message();
+            heartBeatMessage.setHeartbeat(true);
+            return heartBeatMessage;
+        });
+
+        return Flux.merge(message, heartBeat);
     }
 
     private Mono<Contact> findOrCreateContact(User owner, User target) {

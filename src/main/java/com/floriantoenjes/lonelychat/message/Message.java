@@ -17,6 +17,8 @@ public class Message {
 
     private String message;
 
+    private boolean heartbeat;
+
     @DBRef
     private User sender;
 
