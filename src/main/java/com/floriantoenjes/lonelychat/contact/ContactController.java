@@ -2,15 +2,15 @@ package com.floriantoenjes.lonelychat.contact;
 
 import com.floriantoenjes.lonelychat.user.User;
 import com.floriantoenjes.lonelychat.user.UserRepository;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static com.floriantoenjes.lonelychat.utils.AuthUtils.getUsernameFromAuth;
 
-@Controller
+@RestController
 @RequestMapping("/contacts")
 public class ContactController {
 
