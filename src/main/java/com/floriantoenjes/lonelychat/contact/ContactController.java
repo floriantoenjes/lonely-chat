@@ -24,9 +24,10 @@ public class ContactController {
     }
 
     @GetMapping()
-    public Flux<Contact> getContacts() {
+    public Flux<User> getContacts() {
         Mono<String> owner = getUsernameFromAuth();
-        return findOrCreateUser(owner).flatMapMany(contact -> contactRepository.findAllByOwnerId(contact.getId()));
+        return findOrCreateUser(owner).flatMapMany(contact -> contactRepository.findAllByOwnerId(contact.getId()))
+                .flatMap(contact -> userRepository.findById(contact.getTarget().getId()));
     }
 
     // TODO: Extract from here and MessageController to keep code dry
