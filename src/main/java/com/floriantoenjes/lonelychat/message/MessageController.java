@@ -103,9 +103,6 @@ public class MessageController {
         });
 
         return Flux.merge(message, heartBeat);
-//                .doOnNext(msg -> System.out.println(
-//                "Message: " + msg.getMessage() + " Dt: " + msg.getSentAt() + " DateTime: " + LocalDateTime.now()
-//                ));
     }
 
     private Mono<Contact> findOrCreateContact(User owner, User target) {
