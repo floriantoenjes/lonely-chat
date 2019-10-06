@@ -12,7 +12,7 @@ public interface MessageRepository extends ReactiveMongoRepository<Message, Stri
     Flux<Message> findAllByReceiverId(String receiverId);
 
     @Tailable
-    Flux<Message> findAllBySenderIdOrReceiverIdAndSentAtAfter(String senderId, String receiverId, LocalDateTime sentAt);
+    Flux<Message> findAllBySenderIdAndSentAtAfterOrReceiverIdAndSentAtAfter(String senderId, LocalDateTime sentAt1, String receiverId, LocalDateTime sentAt2);
 
     Flux<Message> findAllBySenderId(String senderId);
 

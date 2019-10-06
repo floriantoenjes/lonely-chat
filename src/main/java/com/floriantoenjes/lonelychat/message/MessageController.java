@@ -92,9 +92,9 @@ public class MessageController {
     public Flux<Message> streamEvents() {
         Mono<String> username = getUsernameFromAuth();
 
-        Flux<Message> message = findOrCreateUser(username)
+        Flux<Message> message = Flux.defer(() -> findOrCreateUser(username)
                 .flatMapMany(user -> messageRepository
-                        .findAllBySenderIdOrReceiverIdAndSentAtAfter(user.getId(), user.getId(), LocalDateTime.now()));
+                        .findAllBySenderIdAndSentAtAfterOrReceiverIdAndSentAtAfter(user.getId(), LocalDateTime.now(), user.getId(), LocalDateTime.now())));
 
         Flux<Message> heartBeat = Flux.interval(Duration.ofSeconds(30)).map(sequence -> {
             Message heartBeatMessage = new Message();
@@ -103,6 +103,9 @@ public class MessageController {
         });
 
         return Flux.merge(message, heartBeat);
+//                .doOnNext(msg -> System.out.println(
+//                "Message: " + msg.getMessage() + " Dt: " + msg.getSentAt() + " DateTime: " + LocalDateTime.now()
+//                ));
     }
 
     private Mono<Contact> findOrCreateContact(User owner, User target) {
